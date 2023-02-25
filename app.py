@@ -1,10 +1,11 @@
 import streamlit as st
+import matplotlib.pyplot as plt
 
 from dash_utils.utils import describe, display_header, upload_file
+from dash_utils.filter import pick_variables
+from dash_utils.plots import predicting_recidivism
+from dash_utils.models import get_test_cv_fair_split
 
-# from dash_utils.filter import pick_variables
-from dash_utils.plots import basic_plt, predicting_recidivism
-import matplotlib.pyplot as plt
 
 plt.style.use("tableau-colorblind10")
 
@@ -20,14 +21,20 @@ describe(
 # Upload Location --> processes the data
 df, success = upload_file()
 
+"""---"""
+
 # Choose Variables -- Generates 2 plots -- 2 tabs
 if success and len(df) > 0:
-    tabs = st.tabs(["Generate a Custom Plot", "Generate Histogram"])
-    with tabs[0] as tab:
-        "Put custom plot"
-        st.pyplot(predicting_recidivism(df))
-        # X_cv, y_cv, prob_cv, X_test, prob_test, xlabel, ylabel = pick_variables(df)
-    with tabs[1] as tab:
-        "put hist"
-else:
-    st.warning("Something went wrong with the uploaded file.")
+    cols = st.columns([0.3, 0.7])
+    with cols[0]:
+        # Label y-label & fair_features
+        target, fair_features = pick_variables(df)
+    with cols[1]:
+        tabs = st.tabs(["Generate a Custom Plot", "Generate Histogram"])
+
+        with tabs[0] as tab:
+            ewf_plot = predicting_recidivism(df, fair_features, target)
+            if ewf_plot:
+                st.pyplot(ewf_plot)
+        with tabs[1] as tab:
+            "put hist"

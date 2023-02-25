@@ -6,7 +6,7 @@ import streamlit as st
 # from pathlib import Path
 import pandas as pd
 
-from dash_utils.data_io import load_full_csv
+from dash_utils.data_io import load_input_csv
 
 
 def describe(desc):
