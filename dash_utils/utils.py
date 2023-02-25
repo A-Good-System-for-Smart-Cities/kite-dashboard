@@ -1,11 +1,5 @@
 import streamlit as st
-
-# import seaborn as sns
-# from PIL import Image
-# import base64
-# from pathlib import Path
 import pandas as pd
-
 from dash_utils.data_io import load_input_csv
 
 
