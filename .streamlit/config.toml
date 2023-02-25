@@ -1,0 +1,17 @@
+[theme]
+base="dark"
+primaryColor="#b77225"
+secondaryBackgroundColor="#31333f"
+textColor="#f7d499"
+font="sans serif"
+
+# [browser]
+# serverAddress = "smartcity.tacc.utexas.edu/HousingData"
+# gatherUsageStats = false
+#
+# [server]
+# port = 8501
+# headless = true
+# enableCORS = false
+# enableXsrfProtection = false
+# enableWebsocketCompression = false
