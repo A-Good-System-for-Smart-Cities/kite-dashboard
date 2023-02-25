@@ -97,7 +97,7 @@ def plot_id_bias(df, fair_features, target):
             # plt.yticks([-0.1, -0.05, 0, 0.05, 0.1], ["-0.1", "-0.05", "0", "0.05", "0.1"])
             # ax.set_xlim([xmin, xmax])
 
-            ax.set_ylabel("Risk Prediction Bias", size=20)
+            ax.set_ylabel("Prediction Bias", size=20)
             ax.set_xlabel(xlabel, size=20)
 
             # ax.tick_params(axis="both", which="major", labelsize=15)
