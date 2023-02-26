@@ -7,13 +7,13 @@ def pick_variables(df):
     # Label y-label & trust_features
     describe("Choose a y-label")
     ylabel = st.selectbox(
-        "", set(df.columns).difference([model_class_col_name, probability_col_name])
+        "Positive Label Class should be 1", set(df.columns).difference([model_class_col_name, probability_col_name])
     )
 
     # Choose fair features:
     describe("Choose features on which to evaluate model trustworthiness")
     trust_features = st.multiselect(
-        "",
+        "These features should have numeric values.",
         set(df.columns).difference(
             [model_class_col_name, probability_col_name, ylabel]
         ),
