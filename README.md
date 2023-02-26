@@ -1,4 +1,4 @@
-# KiTE-dashboard
+# KiTE-dashboard [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://kite-visualization-tool.streamlit.app/)
 > This dashboard a user-friendly interface for non-programmers to use [KiTE](https://github.com/A-Good-System-for-Smart-Cities/KiTE-utils) -- a tool that validates and calibrates supervised classification models against bias.
 
 > We hope to empower general users to audit models and develop diagnostic plots that help identify and quantify bias in supervised ML models.
