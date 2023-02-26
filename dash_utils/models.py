@@ -33,7 +33,9 @@ def get_test_cv_fair_split(df, fair_features, target):
 
 
 @st.cache_data
-def run_hyp_test(df, fair_features, target, num_loops=100):
+def run_hyp_test(df=[], fair_features=[], target=None, num_loops=100):
+    if len(df) <= 0 or len(fair_features) <= 0 or target is None:
+        return []
     (
         _,
         X_test_fair,

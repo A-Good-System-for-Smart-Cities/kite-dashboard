@@ -17,7 +17,10 @@ sns.set()
 
 
 # Maybe add 2ndary_cat var that can block by
-def plot_id_bias(df, fair_features, target):
+def plot_id_bias(df=[], fair_features=[], target=None):
+    if len(df) <= 0 or len(fair_features) <= 0 or target is None:
+        return
+
     sns.set(style="ticks")
     # Of fair_features, pick x-axis and color
     xlabel, color_col = pick_xaxis_color_plt1(fair_features)
@@ -114,7 +117,7 @@ def plot_id_bias(df, fair_features, target):
         return plt
 
 
-def plot_hist_bias(elce_df):
+def plot_hist_bias(elce_df=[]):
     if len(elce_df) > 0:
         plt.figure(figsize=(15, 6))
 

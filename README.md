@@ -11,7 +11,7 @@
 ## How to use this site?
 1. Collect and pre-process your data as a CSV.
     * Make sure your CSV has your features, labels, and probabilities.
-    * Your CSV MUST have the following 2 columns:
+    * **Your CSV MUST have the following 2 columns**:
         * `model_split_class` -- Accepted values are 'cv' or 'test'
             * **What does this mean?** -- `model_split_class` allows us to identify which rows are for cross-validation (when evaluating fairness) and which rows are for testing.
         * `probability` -- Accepted values are decimal values $\in {0,1}$
