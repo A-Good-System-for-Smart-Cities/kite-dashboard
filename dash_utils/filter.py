@@ -30,10 +30,13 @@ def pick_xaxis_color_plt1(trust_features):
     xlabel = st.selectbox("(This should be Numeric Data)", sorted(set(trust_features)))
 
     # Choose fair features:
-    describe("Choose a color-column")
+    describe("Choose a stratifying variable")
     color_col = st.selectbox(
         "(This should be Categorical Data)",
-        sorted(set(trust_features).difference([xlabel])),
+        sorted(set(trust_features).difference([xlabel])) + ["None"],
     )
+
+    if color_col == "None":
+        color_col = None
 
     return xlabel, color_col

@@ -45,35 +45,37 @@ def plot_id_bias(df=[], trust_features=[], target=None):
     if len(df) <= 0 or len(trust_features) <= 0 or target is None:
         return
 
+    (
+        X_test,
+        X_test_fair,
+        y_test,
+        X_cv,
+        X_cv_fair,
+        y_cv,
+        prob_test,
+        prob_cv,
+    ) = get_test_cv_fair_split(df, trust_features, target)
+
     sns.set(style="ticks")
+
     # Of trust_features, pick x-axis and color
     xlabel, color_col = pick_xaxis_color_plt1(trust_features)
+    np.random.seed(1864)
+    gamma = 0.5  # kernel hyperparameter
+    ewf_model = EWF_calibration()
 
-    if xlabel and color_col:
+    if xlabel:
         xlabel_col_indx = trust_features.index(xlabel)
-        color_col_indx = trust_features.index(color_col)
-
         xmin = np.min(df[xlabel])
         xmax = np.max(df[xlabel])
-
-        colors_vals = pd.Series(df[color_col]).unique()
-        colors = sns.husl_palette(len(colors_vals))
-        dark_colors = sns.husl_palette(len(colors_vals), l=0.4)
-
-        np.random.seed(1864)
-        gamma = 0.5  # kernel hyperparameter
-        ewf_model = EWF_calibration()
-
-        (
-            X_test,
-            X_test_fair,
-            y_test,
-            X_cv,
-            X_cv_fair,
-            y_cv,
-            prob_test,
-            prob_cv,
-        ) = get_test_cv_fair_split(df, trust_features, target)
+        colors = sns.husl_palette(1)
+        dark_colors = sns.husl_palette(1, l=0.4)
+        color_col_indx = None
+        if color_col:
+            color_col_indx = trust_features.index(color_col)
+            colors_vals = pd.Series(df[color_col]).unique()
+            colors = sns.husl_palette(len(colors_vals))
+            dark_colors = sns.husl_palette(len(colors_vals), l=0.4)
 
         try:
             plt.figure(figsize=(15, 6))
@@ -81,14 +83,16 @@ def plot_id_bias(df=[], trust_features=[], target=None):
 
             ax.plot([xmin, xmax], [0, 0], "k-", label="Reference")
             for c, clr in enumerate(colors):
-                label = colors_vals[c]
-                mask = X_test_fair.T[color_col_indx] == label
+                label = None
+                if color_col_indx:
+                    label = colors_vals[c]
+                    mask = X_test_fair.T[color_col_indx] == label
                 ax = plot_ewf(
                     X_cv_fair,
                     y_cv,
                     prob_cv,
-                    X_test_fair[mask],
-                    prob_test[mask],
+                    X_test_fair if not color_col_indx else X_test_fair[mask],
+                    prob_test if not color_col_indx else prob_test[mask],
                     ax,
                     color_indx=c,
                     label=label,
