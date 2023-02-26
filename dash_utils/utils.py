@@ -7,7 +7,6 @@ def describe(desc):
     st.markdown(f"##### {desc}")
 
 
-
 description = """
 This dashboard a user-friendly interface for non-programmers to use [KiTE](https://github.com/A-Good-System-for-Smart-Cities/KiTE-utils) -- a tool that validates and calibrates supervised classification models against bias.
 
@@ -22,7 +21,7 @@ This dashboard a user-friendly interface for non-programmers to use [KiTE](https
 file_reqs = """
     * Make sure your CSV has your features, labels, and probabilities.
     * **Your CSV MUST have the following column**:
-        * `probability` -- Accepted values are decimal values $\in {0,1}$
+        * `probability` -- Accepted values are decimal values $\in [0,1]$
             * **What does this mean?** -- For rows with a `model_split_class` of `cv`, `probability` represents the output of the model's prediction probability for the validation data. Similarly, rows with a `model_split_class` of `test` has a `probability` that represents the output of the model's prediction probability for the testing feature set.
     * **Need an Example?** -- Please refer to [notebooks/Preprocess_COMPASS.ipynb](https://github.com/A-Good-System-for-Smart-Cities/kite-dashboard/blob/main/notebooks/Preprocess_COMPASS.ipynb) to see how you can pre-process your data into the right format!
 

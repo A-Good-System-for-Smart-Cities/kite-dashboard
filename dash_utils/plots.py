@@ -19,6 +19,31 @@ sns.set()
 
 # Maybe add 2ndary_cat var that can block by
 def plot_id_bias(df=[], trust_features=[], target=None):
+    # #############################################################################
+    #                             Plot calibration plots
+    # #############################################################################
+    def plot_ewf(
+        X_cv, y_cv, prob_cv, X_test, prob_test, ax, color_indx=0, label=None
+    ):
+        # Train a calibration method (EWF) on 2nd data subset
+        ewf_model.fit(X_cv, prob_cv, y_cv, kernel_function="rbf", gamma=gamma)
+        ewf = ewf_model.predict(X_test, prob_test, mode="bias")
+
+        # Plot outcome
+        ax.plot(
+            X_test.T[xlabel_col_indx], ewf, ".", color=colors[color_indx], alpha=0.5
+        )
+
+        Xfit = X_test.T[xlabel_col_indx]
+        model = make_pipeline(PolynomialFeatures(3), Ridge())
+        model.fit(Xfit[:, np.newaxis], ewf)
+
+        X_plot = np.linspace(xmin, xmax, 201)
+        y_plot = model.predict(X_plot[:, np.newaxis])
+
+        ax.plot(X_plot, y_plot, lw=3, color=dark_colors[color_indx], label=label)
+        return ax
+
     if len(df) <= 0 or len(trust_features) <= 0 or target is None:
         return
 
@@ -52,37 +77,11 @@ def plot_id_bias(df=[], trust_features=[], target=None):
             prob_cv,
         ) = get_test_cv_fair_split(df, trust_features, target)
 
-        # #############################################################################
-        #                             Plot calibration plots
-        # #############################################################################
-        def plot_ewf(
-            X_cv, y_cv, prob_cv, X_test, prob_test, ax, color_indx=0, label=None
-        ):
-            # Train a calibration method (EWF) on 2nd data subset
-            ewf_model.fit(X_cv, prob_cv, y_cv, kernel_function="rbf", gamma=gamma)
-            ewf = ewf_model.predict(X_test, prob_test, mode="bias")
-
-            # Plot outcome
-            ax.plot(
-                X_test.T[xlabel_col_indx], ewf, ".", color=colors[color_indx], alpha=0.5
-            )
-
-            Xfit = X_test.T[xlabel_col_indx]
-            model = make_pipeline(PolynomialFeatures(3), Ridge())
-            model.fit(Xfit[:, np.newaxis], ewf)
-
-            X_plot = np.linspace(xmin, xmax, 201)
-            y_plot = model.predict(X_plot[:, np.newaxis])
-
-            ax.plot(X_plot, y_plot, lw=3, color=dark_colors[color_indx], label=label)
-            return ax
-
         try:
             plt.figure(figsize=(15, 6))
             ax = plt.subplot2grid((2, 2), (0, 0))
 
             ax.plot([xmin, xmax], [0, 0], "k-", label="Reference")
-
             for c, clr in enumerate(colors):
                 label = colors_vals[c]
                 mask = X_test_fair.T[color_col_indx] == label
@@ -98,14 +97,12 @@ def plot_id_bias(df=[], trust_features=[], target=None):
                 )
 
             ax.set_ylim([-1, 1])
-            # plt.yticks([-0.1, -0.05, 0, 0.05, 0.1], ["-0.1", "-0.05", "0", "0.05", "0.1"])
-            # ax.set_xlim([xmin, xmax])
 
             ax.set_ylabel("Prediction Bias", size=20)
             ax.set_xlabel(xlabel, size=20)
 
-            # ax.tick_params(axis="both", which="major", labelsize=15)
-            # ax.tick_params(axis="both", which="minor", labelsize=15)
+            ax.tick_params(axis="both", which="major", labelsize=15)
+            ax.tick_params(axis="both", which="minor", labelsize=15)
             ax.legend(prop={"size": 17})
             for tick in ax.get_yticklabels():
                 tick.set_visible(True)
@@ -115,9 +112,10 @@ def plot_id_bias(df=[], trust_features=[], target=None):
             plt.subplots_adjust(wspace=0.05, hspace=0.02)
         except Exception as e:
             st.warning(
-                "ERR: Plot could not be generated correctly. Make sure your xaxis is numerical and color_axis is discrete."
+                "ERR: Plot could not be generated correctly. Make sure your xaxis is numerical and color_axis is discrete/categorical."
             )
             st.warning(f"Here is the exact error: {e}")
+            return None
         return plt
 
 
@@ -167,9 +165,9 @@ def plot_calibration_curve(y_true, y_pred):
     )
     ax.set_xlim(left=0, right=1)
     ax.set_ylim(bottom=0, top=1)
-    plt.title("Calibration Curve", size=30)
-    plt.ylabel("Fraction of positives (Positive Class: 1)", size=20)
-    plt.xlabel("Mean Predicted Probability (Positive Class: 1)", size=20)
+    plt.title("Calibration Curve (Positive Class: 1)", size=30)
+    plt.ylabel("Fraction of positives", size=20)
+    plt.xlabel("Mean Predicted Probability", size=20)
     plt.legend(prop={"size": 17})
 
     return plt

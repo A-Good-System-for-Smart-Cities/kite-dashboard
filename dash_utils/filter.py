@@ -5,17 +5,18 @@ from dash_utils.constants import model_class_col_name, probability_col_name
 
 def pick_variables(df):
     # Label y-label & trust_features
+    options = sorted(set(df.columns).difference([model_class_col_name, probability_col_name]))
     describe("Choose a y-label")
-    ylabel = st.selectbox(
-        "Positive Label Class should be 1", set(df.columns).difference([model_class_col_name, probability_col_name])
-    )
+    ylabel = st.selectbox("Positive Label Class should be 1", options)
 
     # Choose fair features:
     describe("Choose features on which to evaluate model trustworthiness")
     trust_features = st.multiselect(
         "These features should have numeric values.",
-        set(df.columns).difference(
-            [model_class_col_name, probability_col_name, ylabel]
+        sorted(
+            set(df.columns).difference(
+                [model_class_col_name, probability_col_name, ylabel]
+            )
         ),
     )
 
@@ -24,12 +25,15 @@ def pick_variables(df):
 
 def pick_xaxis_color_plt1(trust_features):
     describe("Choose an x-axis")
-    xlabel = st.selectbox("(This should be Numeric Data)", set(trust_features))
+    xlabel = st.selectbox(
+        "(This should be Numeric Data)", sorted(set(trust_features))
+    )
 
     # Choose fair features:
     describe("Choose a color-column")
     color_col = st.selectbox(
-        "(This should be Categorical Data)", set(trust_features).difference([xlabel])
+        "(This should be Categorical Data)",
+        sorted(set(trust_features).difference([xlabel])),
     )
 
     return xlabel, color_col
