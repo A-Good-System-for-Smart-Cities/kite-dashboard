@@ -147,7 +147,7 @@ if st.session_state["file_uploaded"]:
                 * We run a bootstrapped ELCE2 calculation that generates a Null Distribution, $ELCE^2$ estimate, and probability 5 times.
                 * The $ELCE^2$ estimate (orange line) represents local bias when compared to the null distribution centered at 0.
                     * If the pvalue (aka probability) < alpha = 0.05, then we can reject the Null Hypothesis. In that case, we have convincing statistical evidence that the model is locally biased on the trustworthiness features.
-                    * Otherwise, if pvalue >= alpha = 0.01, then we fail to reject the Null Hypothesis as we lack convincing statistical evidence that the model is locally biased on our chosen set of trust_features
+                    * Otherwise, if pvalue >= alpha = 0.05, then we fail to reject the Null Hypothesis as we lack convincing statistical evidence that the model is locally biased on our chosen set of trust_features
                 """
                 )
                 if hist_plot:
