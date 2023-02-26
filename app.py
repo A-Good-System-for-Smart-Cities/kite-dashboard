@@ -86,39 +86,12 @@ if st.session_state["file_uploaded"]:
         else:
             tabs = st.tabs(
                 [
+                    "Generate Calibration Curve",
                     "Generate a Custom Plot",
                     "Generate Histogram",
-                    "Generate Calibration Curve",
                 ]
             )
-
             with tabs[0] as tab:
-                ewf_plot = plot_id_bias(df, trust_features, target)
-                if ewf_plot:
-                    st.pyplot(ewf_plot)
-                    img = convert_img(ewf_plot)
-                    btn = st.download_button(
-                        label="Download EWF Plot",
-                        data=img,
-                        file_name="ewf_plot.png",
-                        mime="image/png",
-                    )
-
-            with tabs[1] as tab:
-                elce2_est, proba, elce_df = run_hyp_test(
-                    df, trust_features, target, num_loops=5
-                )
-                hist_plot = plot_hist_bias(elce2_est, proba, elce_df)
-                if hist_plot:
-                    st.pyplot(hist_plot)
-                    img = convert_img(hist_plot)
-                    btn = st.download_button(
-                        label="Download ELCE2 Histogram",
-                        data=img,
-                        file_name="elce2_hist.png",
-                        mime="image/png",
-                    )
-            with tabs[2] as tab:
                 (
                     _,
                     _2,
@@ -138,5 +111,34 @@ if st.session_state["file_uploaded"]:
                         label="Download Calibration Curve",
                         data=img,
                         file_name="calib_plot.png",
+                        mime="image/png",
+                    )
+                else:
+                    st.success("Generating plot...")
+
+            with tabs[1] as tab:
+                ewf_plot = plot_id_bias(df, trust_features, target)
+                if ewf_plot:
+                    st.pyplot(ewf_plot)
+                    img = convert_img(ewf_plot)
+                    btn = st.download_button(
+                        label="Download EWF Plot",
+                        data=img,
+                        file_name="ewf_plot.png",
+                        mime="image/png",
+                    )
+
+            with tabs[2] as tab:
+                elce2_est, proba, elce_df = run_hyp_test(
+                    df, trust_features, target, num_loops=5
+                )
+                hist_plot = plot_hist_bias(elce2_est, proba, elce_df)
+                if hist_plot:
+                    st.pyplot(hist_plot)
+                    img = convert_img(hist_plot)
+                    btn = st.download_button(
+                        label="Download ELCE2 Histogram",
+                        data=img,
+                        file_name="elce2_hist.png",
                         mime="image/png",
                     )
