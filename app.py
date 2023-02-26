@@ -84,7 +84,13 @@ if st.session_state["file_uploaded"]:
         ):
             st.warning("Please label target and trustworthiness features")
         else:
-            tabs = st.tabs(["Generate a Custom Plot", "Generate Histogram", "Generate Calibration Curve"])
+            tabs = st.tabs(
+                [
+                    "Generate a Custom Plot",
+                    "Generate Histogram",
+                    "Generate Calibration Curve",
+                ]
+            )
 
             with tabs[0] as tab:
                 ewf_plot = plot_id_bias(df, trust_features, target)
@@ -99,7 +105,9 @@ if st.session_state["file_uploaded"]:
                     )
 
             with tabs[1] as tab:
-                elce2_est, proba, elce_df = run_hyp_test(df, trust_features, target, num_loops=5)
+                elce2_est, proba, elce_df = run_hyp_test(
+                    df, trust_features, target, num_loops=5
+                )
                 hist_plot = plot_hist_bias(elce2_est, proba, elce_df)
                 if hist_plot:
                     st.pyplot(hist_plot)

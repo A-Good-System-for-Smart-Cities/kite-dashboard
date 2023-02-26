@@ -19,9 +19,7 @@ def load_input_csv(path: str):
     df, success = load_full_csv(path)
 
     if probability_col_name not in df.columns:
-        st.warning(
-            f"Either '{model_class_col_name}' or '{probability_col_name}' NOT in CSV columns."
-        )
+        st.warning(f"Column '{probability_col_name}' NOT in CSV columns.")
         success = False
     return df, success
 

@@ -114,7 +114,9 @@ def plot_id_bias(df=[], trust_features=[], target=None):
             plt.tight_layout()
             plt.subplots_adjust(wspace=0.05, hspace=0.02)
         except Exception as e:
-            st.warning(f"ERR: Plot could not be generated correctly. Make sure your xaxis is numerical and color_axis is discrete.")
+            st.warning(
+                "ERR: Plot could not be generated correctly. Make sure your xaxis is numerical and color_axis is discrete."
+            )
             st.warning(f"Here is the exact error: {e}")
         return plt
 
@@ -124,8 +126,17 @@ def plot_hist_bias(elce2_est, proba, elce_df=[]):
         sns.set()
         plt.figure(figsize=(15, 6))
 
-        ax = sns.histplot(elce_df, x="ELCE2", bins=20, kde=True, label="Null ELCE2 Distribution")
-        plt.axvline(x=elce2_est, label=f"ELCE2 Estimate (pval = {proba})", color='coral', marker='o', linestyle='dashed',linewidth=5)
+        sns.histplot(
+            elce_df, x="ELCE2", bins=20, kde=True, label="Null ELCE2 Distribution"
+        )
+        plt.axvline(
+            x=elce2_est,
+            label=f"ELCE2 Estimate (pval = {proba})",
+            color="coral",
+            marker="o",
+            linestyle="dashed",
+            linewidth=5,
+        )
 
         handles, labels = plt.gca().get_legend_handles_labels()
         by_label = dict(zip(labels, handles))
@@ -140,9 +151,20 @@ def plot_hist_bias(elce2_est, proba, elce_df=[]):
 def plot_calibration_curve(y_true, y_pred):
     plt.figure(figsize=(15, 6))
     prob_true, prob_pred = calibration_curve(y_true, y_pred, n_bins=20)
-    ax = sns.lineplot(x=prob_pred, y=prob_true, marker='o', label="Current Calibration", linewidth=3)
+    ax = sns.lineplot(
+        x=prob_pred, y=prob_true, marker="o", label="Current Calibration", linewidth=3
+    )
     xpoints = ypoints = ax.get_xlim()
-    plt.plot(xpoints, ypoints, linestyle='--', color='k', lw=1, scalex=False, scaley=False, label="Perfect Calibration")
+    plt.plot(
+        xpoints,
+        ypoints,
+        linestyle="--",
+        color="k",
+        lw=1,
+        scalex=False,
+        scaley=False,
+        label="Perfect Calibration",
+    )
     ax.set_xlim(left=0, right=1)
     ax.set_ylim(bottom=0, top=1)
     plt.title("Calibration Curve", size=30)

@@ -4,7 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 
-from dash_utils.constants import model_class_col_name, probability_col_name
+from dash_utils.constants import probability_col_name
 from KiTE.metrics import ELCE2
 
 plt.style.use("tableau-colorblind10")
@@ -13,15 +13,13 @@ plt.style.use("tableau-colorblind10")
 def get_test_cv_fair_split(df, trust_features, target):
     np.random.seed(1864)
 
-    feature_and_proba = set(df.columns).difference(
-        [target]
-    )
+    feature_and_proba = set(df.columns).difference([target])
 
-    features = set(feature_and_proba).difference(
-        [probability_col_name, target]
-    )
+    features = set(feature_and_proba).difference([probability_col_name, target])
 
-    X_cv_and_proba, X_test_and_proba, y_cv, y_test = train_test_split(df[feature_and_proba], df[target], test_size=0.5, random_state=42)
+    X_cv_and_proba, X_test_and_proba, y_cv, y_test = train_test_split(
+        df[feature_and_proba], df[target], test_size=0.5, random_state=42
+    )
 
     validate = pd.concat([X_cv_and_proba, y_cv], axis=1)
     test = pd.concat([X_test_and_proba, y_test], axis=1)
