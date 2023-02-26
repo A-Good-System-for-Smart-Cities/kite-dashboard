@@ -22,9 +22,7 @@ def plot_id_bias(df=[], trust_features=[], target=None):
     # #############################################################################
     #                             Plot calibration plots
     # #############################################################################
-    def plot_ewf(
-        X_cv, y_cv, prob_cv, X_test, prob_test, ax, color_indx=0, label=None
-    ):
+    def plot_ewf(X_cv, y_cv, prob_cv, X_test, prob_test, ax, color_indx=0, label=None):
         # Train a calibration method (EWF) on 2nd data subset
         ewf_model.fit(X_cv, prob_cv, y_cv, kernel_function="rbf", gamma=gamma)
         ewf = ewf_model.predict(X_test, prob_test, mode="bias")

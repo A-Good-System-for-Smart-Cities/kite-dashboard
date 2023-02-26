@@ -5,7 +5,9 @@ from dash_utils.constants import model_class_col_name, probability_col_name
 
 def pick_variables(df):
     # Label y-label & trust_features
-    options = sorted(set(df.columns).difference([model_class_col_name, probability_col_name]))
+    options = sorted(
+        set(df.columns).difference([model_class_col_name, probability_col_name])
+    )
     describe("Choose a y-label")
     ylabel = st.selectbox("Positive Label Class should be 1", options)
 
@@ -25,9 +27,7 @@ def pick_variables(df):
 
 def pick_xaxis_color_plt1(trust_features):
     describe("Choose an x-axis")
-    xlabel = st.selectbox(
-        "(This should be Numeric Data)", sorted(set(trust_features))
-    )
+    xlabel = st.selectbox("(This should be Numeric Data)", sorted(set(trust_features)))
 
     # Choose fair features:
     describe("Choose a color-column")

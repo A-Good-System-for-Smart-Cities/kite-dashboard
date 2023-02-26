@@ -4,7 +4,7 @@ from dash_utils.utils import display_header, upload_file
 from dash_utils.filter import pick_variables
 from dash_utils.plots import plot_id_bias, plot_hist_bias, plot_calibration_curve
 from dash_utils.data_io import convert_img
-from dash_utils.models import run_hyp_test, get_test_cv_fair_split
+from dash_utils.models import run_hyp_test
 from dash_utils.constants import probability_col_name
 
 
@@ -93,10 +93,12 @@ if st.session_state["file_uploaded"]:
                 ]
             )
             with tabs[0] as tab:
-                st.markdown("""
+                st.markdown(
+                    """
                 * This [Calibration Curve/Reliability Diagram](https://scikit-learn.org/stable/modules/calibration.html) compares the calibration of the model's probabilistic predictions.
                 * To generate this plot, we calculate the Mean Predicted Probability and the Fraction of positives from your input data's target/y-label and probability columns.
-                """)
+                """
+                )
 
                 y_test = df[target]
                 prob_test = df[probability_col_name]
@@ -116,12 +118,14 @@ if st.session_state["file_uploaded"]:
 
             with tabs[1] as tab:
                 ewf_plot = plot_id_bias(df, trust_features, target)
-                st.markdown("""
+                st.markdown(
+                    """
                 * This plot helps identify regions of potential bias in the given dataset.
                 * We calculate prediction bias using the Error Witness Function (EWF) -- a metric that calcualtes the discrepancy between observed labels and predicted probabilities.
                 * To generate this plot, we split the data randomly into 50% validation and 50% testing. We train an EWF model on the validation data, and use it to predict probabilities on the testing set.
                 * We mask data based on the categorical variable chosen.
-                """)
+                """
+                )
                 if ewf_plot:
                     st.pyplot(ewf_plot)
                     img = convert_img(ewf_plot)
@@ -137,13 +141,15 @@ if st.session_state["file_uploaded"]:
                     df, trust_features, target, num_loops=5
                 )
                 hist_plot = plot_hist_bias(elce2_est, proba, elce_df)
-                st.markdown("""
+                st.markdown(
+                    """
                 * This plot helps quantify local bias (using the $ELCE^2$ statistic) based on the features used to evaluate trustworthiness of the given dataset.
                 * We run a bootstrapped ELCE2 calculation that generates a Null Distribution, $ELCE^2$ estimate, and probability 5 times.
                 * The $ELCE^2$ estimate (orange line) represents local bias when compared to the null distribution centered at 0.
                     * If the pvalue (aka probability) < alpha = 0.05, then we can reject the Null Hypothesis. In that case, we have convincing statistical evidence that the model is locally biased on the trustworthiness features.
                     * Otherwise, if pvalue >= alpha = 0.01, then we fail to reject the Null Hypothesis as we lack convincing statistical evidence that the model is locally biased on our chosen set of trust_features
-                """)
+                """
+                )
                 if hist_plot:
                     st.pyplot(hist_plot)
                     img = convert_img(hist_plot)
