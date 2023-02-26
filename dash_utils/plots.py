@@ -7,6 +7,7 @@ import numpy as np
 import seaborn as sns
 import pandas as pd
 from sklearn.pipeline import make_pipeline
+from sklearn.calibration import calibration_curve
 
 # --------------- KiTE Imports ---------------
 from KiTE.calibration_models import EWF_calibration
@@ -17,17 +18,17 @@ sns.set()
 
 
 # Maybe add 2ndary_cat var that can block by
-def plot_id_bias(df=[], fair_features=[], target=None):
-    if len(df) <= 0 or len(fair_features) <= 0 or target is None:
+def plot_id_bias(df=[], trust_features=[], target=None):
+    if len(df) <= 0 or len(trust_features) <= 0 or target is None:
         return
 
     sns.set(style="ticks")
-    # Of fair_features, pick x-axis and color
-    xlabel, color_col = pick_xaxis_color_plt1(fair_features)
+    # Of trust_features, pick x-axis and color
+    xlabel, color_col = pick_xaxis_color_plt1(trust_features)
 
     if xlabel and color_col:
-        xlabel_col_indx = fair_features.index(xlabel)
-        color_col_indx = fair_features.index(color_col)
+        xlabel_col_indx = trust_features.index(xlabel)
+        color_col_indx = trust_features.index(color_col)
 
         xmin = np.min(df[xlabel])
         xmax = np.max(df[xlabel])
@@ -49,7 +50,7 @@ def plot_id_bias(df=[], fair_features=[], target=None):
             y_cv,
             prob_test,
             prob_cv,
-        ) = get_test_cv_fair_split(df, fair_features, target)
+        ) = get_test_cv_fair_split(df, trust_features, target)
 
         # #############################################################################
         #                             Plot calibration plots
@@ -96,7 +97,7 @@ def plot_id_bias(df=[], fair_features=[], target=None):
                     label=label,
                 )
 
-            # ax.set_ylim([-0.1, 0.1])
+            ax.set_ylim([-1, 1])
             # plt.yticks([-0.1, -0.05, 0, 0.05, 0.1], ["-0.1", "-0.05", "0", "0.05", "0.1"])
             # ax.set_xlim([xmin, xmax])
 
@@ -113,17 +114,40 @@ def plot_id_bias(df=[], fair_features=[], target=None):
             plt.tight_layout()
             plt.subplots_adjust(wspace=0.05, hspace=0.02)
         except Exception as e:
-            st.warning(f"Plot could not be generated correctly due to {e}")
+            st.warning(f"ERR: Plot could not be generated correctly. Make sure your xaxis is numerical and color_axis is discrete.")
+            st.warning(f"Here is the exact error: {e}")
         return plt
 
 
-def plot_hist_bias(elce_df=[]):
+def plot_hist_bias(elce2_est, proba, elce_df=[]):
     if len(elce_df) > 0:
+        sns.set()
         plt.figure(figsize=(15, 6))
 
-        sns.histplot(elce_df, x="ELCE2", bins=20, kde=True)
-        plt.title("ELCE2 Distribution for fair_features", size=30)
+        ax = sns.histplot(elce_df, x="ELCE2", bins=20, kde=True, label="Null ELCE2 Distribution")
+        plt.axvline(x=elce2_est, label=f"ELCE2 Estimate (pval = {proba})", color='coral', marker='o', linestyle='dashed',linewidth=5)
 
+        handles, labels = plt.gca().get_legend_handles_labels()
+        by_label = dict(zip(labels, handles))
+        plt.legend(by_label.values(), by_label.keys(), prop={"size": 17})
+
+        plt.title("ELCE2 Distribution for trust_features", size=30)
         plt.ylabel("Frequency", size=25)
         plt.xlabel("ELCE2", size=25)
         return plt
+
+
+def plot_calibration_curve(y_true, y_pred):
+    plt.figure(figsize=(15, 6))
+    prob_true, prob_pred = calibration_curve(y_true, y_pred, n_bins=20)
+    ax = sns.lineplot(x=prob_pred, y=prob_true, marker='o', label="Current Calibration", linewidth=3)
+    xpoints = ypoints = ax.get_xlim()
+    plt.plot(xpoints, ypoints, linestyle='--', color='k', lw=1, scalex=False, scaley=False, label="Perfect Calibration")
+    ax.set_xlim(left=0, right=1)
+    ax.set_ylim(bottom=0, top=1)
+    plt.title("Calibration Curve", size=30)
+    plt.ylabel("Fraction of positives (Positive Class: 1)", size=20)
+    plt.xlabel("Mean Predicted Probability (Positive Class: 1)", size=20)
+    plt.legend(prop={"size": 17})
+
+    return plt

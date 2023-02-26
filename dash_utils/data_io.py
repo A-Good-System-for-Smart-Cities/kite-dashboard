@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from dash_utils.constants import model_class_col_name, probability_col_name
+from dash_utils.constants import probability_col_name
 import io
 
 
@@ -18,7 +18,7 @@ def load_full_csv(path: str):
 def load_input_csv(path: str):
     df, success = load_full_csv(path)
 
-    if model_class_col_name not in df.columns or probability_col_name not in df.columns:
+    if probability_col_name not in df.columns:
         st.warning(
             f"Either '{model_class_col_name}' or '{probability_col_name}' NOT in CSV columns."
         )

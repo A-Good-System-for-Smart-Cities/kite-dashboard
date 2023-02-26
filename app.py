@@ -1,10 +1,10 @@
 import streamlit as st
 from PIL import Image
-from dash_utils.utils import describe, display_header, upload_file
+from dash_utils.utils import display_header, upload_file
 from dash_utils.filter import pick_variables
-from dash_utils.plots import plot_id_bias, plot_hist_bias
+from dash_utils.plots import plot_id_bias, plot_hist_bias, plot_calibration_curve
 from dash_utils.data_io import convert_img
-from dash_utils.models import run_hyp_test
+from dash_utils.models import run_hyp_test, get_test_cv_fair_split
 
 
 st.set_page_config(page_icon="🤘", page_title="KITE Dashboard", layout="wide")
@@ -60,27 +60,34 @@ if success and len(df) > 0:
     st.session_state["file_uploaded"] = True
 
 """---"""
-target, fair_features = None, None
+target, trust_features = None, None
 # Choose Variables -- Generates 2 plots -- 2 tabs
 if st.session_state["file_uploaded"]:
     cols = st.columns([0.3, 0.7])
     with cols[0]:
-        # Label y-label & fair_features
-        target, fair_features = pick_variables(df)
+        # Label y-label & trust_features
+        target, trust_features = pick_variables(df)
         with st.form("my_form"):
             # Every form must have a submit button.
-            submitted = st.form_submit_button("Generate Plots!",use_container_width=True)
+            submitted = st.form_submit_button(
+                "Generate Plots!", use_container_width=True
+            )
             if submitted:
                 st.session_state["labeled_vars"] = True
 
     with cols[1]:
-        if not st.session_state["labeled_vars"] or target is None or fair_features is None or len(fair_features) <= 0:
-            st.warning("Please label target and fairness features")
+        if (
+            not st.session_state["labeled_vars"]
+            or target is None
+            or trust_features is None
+            or len(trust_features) <= 0
+        ):
+            st.warning("Please label target and trustworthiness features")
         else:
-            tabs = st.tabs(["Generate a Custom Plot", "Generate Histogram"])
+            tabs = st.tabs(["Generate a Custom Plot", "Generate Histogram", "Generate Calibration Curve"])
 
             with tabs[0] as tab:
-                ewf_plot = plot_id_bias(df, fair_features, target)
+                ewf_plot = plot_id_bias(df, trust_features, target)
                 if ewf_plot:
                     st.pyplot(ewf_plot)
                     img = convert_img(ewf_plot)
@@ -92,8 +99,8 @@ if st.session_state["file_uploaded"]:
                     )
 
             with tabs[1] as tab:
-                elce_df = run_hyp_test(df, fair_features, target, num_loops=5)
-                hist_plot = plot_hist_bias(elce_df)
+                elce2_est, proba, elce_df = run_hyp_test(df, trust_features, target, num_loops=5)
+                hist_plot = plot_hist_bias(elce2_est, proba, elce_df)
                 if hist_plot:
                     st.pyplot(hist_plot)
                     img = convert_img(hist_plot)
@@ -101,5 +108,27 @@ if st.session_state["file_uploaded"]:
                         label="Download ELCE2 Histogram",
                         data=img,
                         file_name="elce2_hist.png",
+                        mime="image/png",
+                    )
+            with tabs[2] as tab:
+                (
+                    _,
+                    _2,
+                    y_test,
+                    _3,
+                    _4,
+                    _5,
+                    prob_test,
+                    _6,
+                ) = get_test_cv_fair_split(df, trust_features, target)
+
+                calib_plt = plot_calibration_curve(y_test, prob_test)
+                if calib_plt:
+                    st.pyplot(calib_plt)
+                    img = convert_img(calib_plt)
+                    btn = st.download_button(
+                        label="Download Calibration Curve",
+                        data=img,
+                        file_name="calib_plot.png",
                         mime="image/png",
                     )
