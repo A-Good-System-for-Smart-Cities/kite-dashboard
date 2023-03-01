@@ -22,7 +22,18 @@ def pick_variables(df):
         ),
     )
 
-    return ylabel, trust_features
+    # Label variables that need encoding
+    describe("Which of the following columns are categorical variables?")
+    encoding_req = st.multiselect(
+        "These features need 1-hot-encoding",
+        sorted(
+            set(df.columns).difference(
+                [model_class_col_name, probability_col_name, ylabel]
+            )
+        ),
+    )
+
+    return ylabel, trust_features, encoding_req
 
 
 def pick_xaxis_color_plt1(trust_features):

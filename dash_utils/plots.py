@@ -18,11 +18,13 @@ sns.set()
 
 
 # Maybe add 2ndary_cat var that can block by
-def plot_id_bias(df=[], trust_features=[], target=None):
+def plot_id_bias(df, trust_features, encoding_req_names=None, target=None):
     # #############################################################################
     #                             Plot calibration plots
     # #############################################################################
-    def plot_ewf(X_cv, y_cv, prob_cv, X_test, prob_test, ax, color_indx=0, label=None):
+    def plot_ewf(
+        X_cv, y_cv, prob_cv, X_test, prob_test, ax, color_col, color_indx=0, label=None
+    ):
         # Train a calibration method (EWF) on 2nd data subset
         ewf_model.fit(X_cv, prob_cv, y_cv, kernel_function="rbf", gamma=gamma)
         ewf = ewf_model.predict(X_test, prob_test, mode="bias")
@@ -39,11 +41,26 @@ def plot_id_bias(df=[], trust_features=[], target=None):
         X_plot = np.linspace(xmin, xmax, 201)
         y_plot = model.predict(X_plot[:, np.newaxis])
 
-        ax.plot(X_plot, y_plot, lw=3, color=dark_colors[color_indx], label=label)
+        ax.plot(
+            X_plot,
+            y_plot,
+            lw=3,
+            color=dark_colors[color_indx],
+            label=color_col if label == 1 else "Other",
+        )
         return ax
 
     if len(df) <= 0 or len(trust_features) <= 0 or target is None:
-        return
+        err = st.warning("Invalid df or trust_features")
+        return None, err
+
+    output = get_test_cv_fair_split(
+        df, trust_features, encoding_req_names, target, True
+    )
+
+    if output is None:
+        err = "One-Hot Encoding made this file too big! Reduce the number of rows."
+        return None, err
 
     (
         X_test,
@@ -54,7 +71,9 @@ def plot_id_bias(df=[], trust_features=[], target=None):
         y_cv,
         prob_test,
         prob_cv,
-    ) = get_test_cv_fair_split(df, trust_features, target)
+        trust_features,
+        df,
+    ) = output
 
     sns.set(style="ticks")
 
@@ -83,10 +102,10 @@ def plot_id_bias(df=[], trust_features=[], target=None):
 
             ax.plot([xmin, xmax], [0, 0], "k-", label="Reference")
             for c, clr in enumerate(colors):
-                label = None
-                if color_col_indx:
-                    label = colors_vals[c]
-                    mask = X_test_fair.T[color_col_indx] == label
+                label = colors_vals[c] if color_col_indx else None
+                mask = (
+                    X_test_fair.T[color_col_indx] == label if color_col_indx else None
+                )
                 ax = plot_ewf(
                     X_cv_fair,
                     y_cv,
@@ -94,6 +113,7 @@ def plot_id_bias(df=[], trust_features=[], target=None):
                     X_test_fair if not color_col_indx else X_test_fair[mask],
                     prob_test if not color_col_indx else prob_test[mask],
                     ax,
+                    color_col,
                     color_indx=c,
                     label=label,
                 )
@@ -118,7 +138,8 @@ def plot_id_bias(df=[], trust_features=[], target=None):
             )
             st.warning(f"Here is the exact error: {e}")
             return None
-        return plt
+        return [plt]
+    return None
 
 
 def plot_hist_bias(elce2_est, proba, elce_df=[]):
