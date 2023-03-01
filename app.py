@@ -90,9 +90,9 @@ if st.session_state["file_uploaded"]:
         else:
             tabs = st.tabs(
                 [
-                    "Generate Calibration Curve",
-                    "Generate a Custom Plot",
-                    "Generate Histogram",
+                    "Calibration evaluation",
+                    "Bias quantification",
+                    "Trustworthiness hypothesis testing",
                 ]
             )
             with tabs[0] as tab:
