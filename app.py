@@ -130,7 +130,7 @@ if st.session_state["file_uploaded"]:
                     if ewf_plot:
                         st.markdown(
                             """
-                        * This plot helps identify regions of potential bias in the given dataset.
+                        * This plot helps identify regions of potential bias in the model.
                         * We calculate prediction bias using the Error Witness Function (EWF) -- a metric that calcualtes the discrepancy between observed labels and predicted probabilities.
                         * To generate this plot, we split the data randomly into 50% validation and 50% testing. We train an EWF model on the validation data, and use it to predict probabilities on the testing set.
                         * We stratify data on the categorical variable chosen.
