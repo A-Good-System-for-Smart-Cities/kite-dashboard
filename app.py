@@ -100,7 +100,9 @@ if st.session_state["file_uploaded"]:
                     ]
                 )
                 with tabs[0] as tab:
-                    with st.expander("Calibration evaluation Plot Description -- What does this mean?"):
+                    with st.expander(
+                        "Calibration evaluation Plot Description -- What does this mean?"
+                    ):
                         st.markdown(
                             """
                         * This [Calibration Curve/Reliability Diagram](https://scikit-learn.org/stable/modules/calibration.html) compares the calibration of the model's probabilistic predictions.
@@ -129,7 +131,9 @@ if st.session_state["file_uploaded"]:
                         target=target_colname,
                     )
                     if ewf_plot:
-                        with st.expander("Bias quantification Plot Description -- What does this mean?"):
+                        with st.expander(
+                            "Bias quantification Plot Description -- What does this mean?"
+                        ):
                             st.markdown(
                                 """
                             * This plot helps identify regions of potential bias in the model. We calculate prediction bias using the Error Witness Function (EWF) -- a metric that calcualtes the discrepancy between observed labels and predicted probabilities.
@@ -153,7 +157,9 @@ if st.session_state["file_uploaded"]:
                     )
                     hist_plot = plot_hist_bias(elce2_est, proba, elce_df)
                     if hist_plot:
-                        with st.expander("Trustworthiness hypothesis testing Plot Description -- What does this mean?"):
+                        with st.expander(
+                            "Trustworthiness hypothesis testing Plot Description -- What does this mean?"
+                        ):
                             st.markdown(
                                 """
                             * This plot helps quantify local bias (using the $ELCE^2$ statistic) based on the features used to evaluate trustworthiness of the given dataset.

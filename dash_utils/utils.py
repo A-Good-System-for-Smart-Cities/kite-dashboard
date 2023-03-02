@@ -75,15 +75,21 @@ def display_header(logo, page_title):
 ################################################################################
 def upload_file():
     np.random.seed(1864)
-    st.markdown(f"""
+    st.markdown(
+        f"""
     # Upload a Input File.
     > NOTE: To limit our dashboard's carbon footprint, we limit the number of input observations to {threshold}.
-    """)
-    with st.expander("If you want to run our tool on larger input sizes, please contact our development team to audit these larger data sizes. Here is our contact information:"):
-        st.markdown("""
+    """
+    )
+    with st.expander(
+        "If you want to run our tool on larger input sizes, please contact our development team to audit these larger data sizes. Here is our contact information:"
+    ):
+        st.markdown(
+            """
         * **Option 1**: Submit any feedback, questions, or issues in the [Issues Tab](https://github.com/A-Good-System-for-Smart-Cities/kite-dashboard/issues) of this Repository. One of our team members will promptly respond to help you out!
         * **Option 2**: Email us at arya.farahi@austin.utexas.edu for any additional questions.
-        """)
+        """
+        )
 
     st.markdown(file_reqs)
     uploaded_file = st.file_uploader("Please upload a CSV", type="csv")
