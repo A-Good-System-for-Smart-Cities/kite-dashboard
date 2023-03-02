@@ -151,7 +151,7 @@ def plot_hist_bias(elce2_est, proba, elce_df=[]):
         )
         plt.axvline(
             x=elce2_est,
-            label=f"ELCE2 Estimate (pval = {proba})",
+            label=f"ELCE2 Estimate (pval <= {proba})",
             color="coral",
             marker="o",
             linestyle="dashed",

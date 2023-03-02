@@ -100,12 +100,13 @@ if st.session_state["file_uploaded"]:
                     ]
                 )
                 with tabs[0] as tab:
-                    st.markdown(
+                    with st.expander("Calibration evaluation Plot Description -- What does this mean?"):
+                        st.markdown(
+                            """
+                        * This [Calibration Curve/Reliability Diagram](https://scikit-learn.org/stable/modules/calibration.html) compares the calibration of the model's probabilistic predictions.
+                        * To generate this plot, we calculate the Mean Predicted Probability and the Fraction of positives from your input data's target/y-label and probability columns.
                         """
-                    * This [Calibration Curve/Reliability Diagram](https://scikit-learn.org/stable/modules/calibration.html) compares the calibration of the model's probabilistic predictions.
-                    * To generate this plot, we calculate the Mean Predicted Probability and the Fraction of positives from your input data's target/y-label and probability columns.
-                    """
-                    )
+                        )
                     y_test = encoded_df[target_colname]
                     prob_test = encoded_df[probability_col_name]
 
@@ -128,14 +129,13 @@ if st.session_state["file_uploaded"]:
                         target=target_colname,
                     )
                     if ewf_plot:
-                        st.markdown(
+                        with st.expander("Bias quantification Plot Description -- What does this mean?"):
+                            st.markdown(
+                                """
+                            * This plot helps identify regions of potential bias in the model. We calculate prediction bias using the Error Witness Function (EWF) -- a metric that calcualtes the discrepancy between observed labels and predicted probabilities.
+                            * To generate this plot, we split the data randomly into 50% validation and 50% testing. We train an EWF model on the validation data, and use it to predict probabilities on the testing set.
                             """
-                        * This plot helps identify regions of potential bias in the model.
-                        * We calculate prediction bias using the Error Witness Function (EWF) -- a metric that calcualtes the discrepancy between observed labels and predicted probabilities.
-                        * To generate this plot, we split the data randomly into 50% validation and 50% testing. We train an EWF model on the validation data, and use it to predict probabilities on the testing set.
-                        * We stratify data on the categorical variable chosen.
-                        """
-                        )
+                            )
                         st.pyplot(ewf_plot)
                         img = convert_img(ewf_plot)
                         btn = st.download_button(
@@ -153,15 +153,16 @@ if st.session_state["file_uploaded"]:
                     )
                     hist_plot = plot_hist_bias(elce2_est, proba, elce_df)
                     if hist_plot:
-                        st.markdown(
+                        with st.expander("Trustworthiness hypothesis testing Plot Description -- What does this mean?"):
+                            st.markdown(
+                                """
+                            * This plot helps quantify local bias (using the $ELCE^2$ statistic) based on the features used to evaluate trustworthiness of the given dataset.
+                            * We run a bootstrapped ELCE2 calculation that generates a Null Distribution, $ELCE^2$ estimate, and probability 5 times.
+                            * The $ELCE^2$ estimate (orange line) represents local bias when compared to the null distribution centered at 0.
+                                * If the pvalue (aka probability) < alpha = 0.05, then we can reject the Null Hypothesis. In that case, we have convincing statistical evidence that the model is locally biased on the trustworthiness features.
+                                * Otherwise, if pvalue >= alpha = 0.05, then we fail to reject the Null Hypothesis as we lack convincing statistical evidence that the model is locally biased on our chosen set of trust_features
                             """
-                        * This plot helps quantify local bias (using the $ELCE^2$ statistic) based on the features used to evaluate trustworthiness of the given dataset.
-                        * We run a bootstrapped ELCE2 calculation that generates a Null Distribution, $ELCE^2$ estimate, and probability 5 times.
-                        * The $ELCE^2$ estimate (orange line) represents local bias when compared to the null distribution centered at 0.
-                            * If the pvalue (aka probability) < alpha = 0.05, then we can reject the Null Hypothesis. In that case, we have convincing statistical evidence that the model is locally biased on the trustworthiness features.
-                            * Otherwise, if pvalue >= alpha = 0.05, then we fail to reject the Null Hypothesis as we lack convincing statistical evidence that the model is locally biased on our chosen set of trust_features
-                        """
-                        )
+                            )
                         st.pyplot(hist_plot)
                         img = convert_img(hist_plot)
                         btn = st.download_button(
