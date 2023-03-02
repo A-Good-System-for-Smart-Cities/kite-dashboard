@@ -1,6 +1,9 @@
 import streamlit as st
 import pandas as pd
+import numpy as np
 from dash_utils.data_io import load_input_csv
+
+threshold = 5000
 
 
 def describe(desc):
@@ -69,13 +72,21 @@ def display_header(logo, page_title):
 #                                   UPLOAD
 ################################################################################
 def upload_file():
-    st.header("Upload a Input File")
+    np.random.seed(1864)
+    st.header(
+        f"Upload a Input File. NOTE: We will only process a random sample of {threshold} rows."
+    )
     st.markdown(file_reqs)
-    uploaded_file = st.file_uploader("")
+    uploaded_file = st.file_uploader("Please upload a CSV", type="csv")
     df = pd.DataFrame()
     success = False
     if uploaded_file is not None:
         df, success = load_input_csv(uploaded_file)
+        if len(df) >= threshold:
+            st.warning(
+                f"Your file had {len(df)} rows. We will only process a random sample of {threshold} rows."
+            )
+            df = df.sample(n=threshold)
     else:
         st.warning("Valid file not yet uploaded")
     return df, success

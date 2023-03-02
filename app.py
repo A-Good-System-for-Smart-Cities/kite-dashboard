@@ -4,7 +4,7 @@ from dash_utils.utils import display_header, upload_file
 from dash_utils.filter import pick_variables
 from dash_utils.plots import plot_id_bias, plot_hist_bias, plot_calibration_curve
 from dash_utils.data_io import convert_img
-from dash_utils.models import run_hyp_test
+from dash_utils.models import run_hyp_test, encode_data
 from dash_utils.constants import probability_col_name
 
 
@@ -67,10 +67,7 @@ if st.session_state["file_uploaded"]:
     cols = st.columns([0.3, 0.7])
     with cols[0]:
         # Label y-label & trust_features
-        target_colname, trust_features_names, encoding_req_names = pick_variables(df)
-        if len(encoding_req_names) == 0:
-            encoding_req_names = None
-
+        target_colname, trust_features_names = pick_variables(df)
         with st.form("my_form"):
             # Every form must have a submit button.
             submitted = st.form_submit_button(
@@ -88,70 +85,72 @@ if st.session_state["file_uploaded"]:
         ):
             st.warning("Please label target and trustworthiness features")
         else:
-            tabs = st.tabs(
-                [
-                    "Calibration evaluation",
-                    "Bias quantification",
-                    "Trustworthiness hypothesis testing",
-                ]
-            )
-            with tabs[0] as tab:
-                st.markdown(
-                    """
-                * This [Calibration Curve/Reliability Diagram](https://scikit-learn.org/stable/modules/calibration.html) compares the calibration of the model's probabilistic predictions.
-                * To generate this plot, we calculate the Mean Predicted Probability and the Fraction of positives from your input data's target/y-label and probability columns.
-                """
-                )
-                y_test = df[target_colname]
-                prob_test = df[probability_col_name]
+            # Encode Df
+            encoded_df, label_encodings = encode_data(df)
 
-                calib_plt = plot_calibration_curve(y_test, prob_test)
-                if calib_plt:
-                    st.pyplot(calib_plt)
-                    img = convert_img(calib_plt)
-                    btn = st.download_button(
-                        label="Download Calibration Curve",
-                        data=img,
-                        file_name="calib_plot.png",
-                        mime="image/png",
-                    )
+            if len(encoded_df) <= 0:
+                st.warning("Encoding Data...")
 
-            with tabs[1] as tab:
-                # df=[], trust_features=[], encoding_req_names = [], target=None
-                output = plot_id_bias(
-                    df=df,
-                    trust_features=trust_features_names,
-                    encoding_req_names=[],
-                    target=target_colname,
+            else:
+                tabs = st.tabs(
+                    [
+                        "Calibration evaluation",
+                        "Bias quantification",
+                        "Trustworthiness hypothesis testing",
+                    ]
                 )
-                if output and len(output) == 1:
-                    ewf_plot = output[0]
+                with tabs[0] as tab:
                     st.markdown(
                         """
-                    * This plot helps identify regions of potential bias in the given dataset.
-                    * We calculate prediction bias using the Error Witness Function (EWF) -- a metric that calcualtes the discrepancy between observed labels and predicted probabilities.
-                    * To generate this plot, we split the data randomly into 50% validation and 50% testing. We train an EWF model on the validation data, and use it to predict probabilities on the testing set.
-                    * We stratify data on the categorical variable chosen.
+                    * This [Calibration Curve/Reliability Diagram](https://scikit-learn.org/stable/modules/calibration.html) compares the calibration of the model's probabilistic predictions.
+                    * To generate this plot, we calculate the Mean Predicted Probability and the Fraction of positives from your input data's target/y-label and probability columns.
                     """
                     )
-                    st.pyplot(ewf_plot)
-                    img = convert_img(ewf_plot)
-                    btn = st.download_button(
-                        label="Download EWF Plot",
-                        data=img,
-                        file_name="ewf_plot.png",
-                        mime="image/png",
-                    )
-                elif output and len(output) == 2:
-                    err = output[1]
-                    st.warning(f"Plot could not be generated because {err}")
+                    y_test = encoded_df[target_colname]
+                    prob_test = encoded_df[probability_col_name]
 
-            with tabs[2] as tab:
-                output = run_hyp_test(
-                    df, trust_features_names, encoding_req_names, target_colname
-                )
-                if output and len(output) == 3:
-                    elce2_est, proba, elce_df = output
+                    calib_plt = plot_calibration_curve(y_test, prob_test)
+                    if calib_plt:
+                        st.pyplot(calib_plt)
+                        img = convert_img(calib_plt)
+                        btn = st.download_button(
+                            label="Download Calibration Curve",
+                            data=img,
+                            file_name="calib_plot.png",
+                            mime="image/png",
+                        )
+
+                with tabs[1] as tab:
+                    ewf_plot = plot_id_bias(
+                        encoded_df,
+                        label_encodings,
+                        trust_features=trust_features_names,
+                        target=target_colname,
+                    )
+                    if ewf_plot:
+                        st.markdown(
+                            """
+                        * This plot helps identify regions of potential bias in the given dataset.
+                        * We calculate prediction bias using the Error Witness Function (EWF) -- a metric that calcualtes the discrepancy between observed labels and predicted probabilities.
+                        * To generate this plot, we split the data randomly into 50% validation and 50% testing. We train an EWF model on the validation data, and use it to predict probabilities on the testing set.
+                        * We stratify data on the categorical variable chosen.
+                        """
+                        )
+                        st.pyplot(ewf_plot)
+                        img = convert_img(ewf_plot)
+                        btn = st.download_button(
+                            label="Download EWF Plot",
+                            data=img,
+                            file_name="ewf_plot.png",
+                            mime="image/png",
+                        )
+                    else:
+                        st.warning("Plot could not be generated.")
+
+                with tabs[2] as tab:
+                    elce2_est, proba, elce_df = run_hyp_test(
+                        encoded_df, trust_features_names, target_colname
+                    )
                     hist_plot = plot_hist_bias(elce2_est, proba, elce_df)
                     if hist_plot:
                         st.markdown(
@@ -173,6 +172,3 @@ if st.session_state["file_uploaded"]:
                         )
                     else:
                         st.warning("Plot could not be generated.")
-                elif output and len(output) == 2:
-                    err = output[1]
-                    st.warning(f"Plot could not be generated because {err}")

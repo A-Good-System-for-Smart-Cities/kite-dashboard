@@ -18,7 +18,7 @@ sns.set()
 
 
 # Maybe add 2ndary_cat var that can block by
-def plot_id_bias(df, trust_features, encoding_req_names=None, target=None):
+def plot_id_bias(encoded_df, label_encodings, trust_features, target=None):
     # #############################################################################
     #                             Plot calibration plots
     # #############################################################################
@@ -46,21 +46,12 @@ def plot_id_bias(df, trust_features, encoding_req_names=None, target=None):
             y_plot,
             lw=3,
             color=dark_colors[color_indx],
-            label=color_col if label == 1 else "Other",
+            label=label,
         )
         return ax
 
-    if len(df) <= 0 or len(trust_features) <= 0 or target is None:
-        err = st.warning("Invalid df or trust_features")
-        return None, err
-
-    output = get_test_cv_fair_split(
-        df, trust_features, encoding_req_names, target, True
-    )
-
-    if output is None:
-        err = "One-Hot Encoding made this file too big! Reduce the number of rows."
-        return None, err
+    if len(encoded_df) <= 0 or len(trust_features) <= 0 or target is None:
+        return
 
     (
         X_test,
@@ -71,9 +62,7 @@ def plot_id_bias(df, trust_features, encoding_req_names=None, target=None):
         y_cv,
         prob_test,
         prob_cv,
-        trust_features,
-        df,
-    ) = output
+    ) = get_test_cv_fair_split(encoded_df, trust_features, target)
 
     sns.set(style="ticks")
 
@@ -85,14 +74,14 @@ def plot_id_bias(df, trust_features, encoding_req_names=None, target=None):
 
     if xlabel:
         xlabel_col_indx = trust_features.index(xlabel)
-        xmin = np.min(df[xlabel])
-        xmax = np.max(df[xlabel])
+        xmin = np.min(encoded_df[xlabel])
+        xmax = np.max(encoded_df[xlabel])
         colors = sns.husl_palette(1)
         dark_colors = sns.husl_palette(1, l=0.4)
         color_col_indx = None
         if color_col:
             color_col_indx = trust_features.index(color_col)
-            colors_vals = pd.Series(df[color_col]).unique()
+            colors_vals = pd.Series(encoded_df[color_col]).unique()
             colors = sns.husl_palette(len(colors_vals))
             dark_colors = sns.husl_palette(len(colors_vals), l=0.4)
 
@@ -102,16 +91,23 @@ def plot_id_bias(df, trust_features, encoding_req_names=None, target=None):
 
             ax.plot([xmin, xmax], [0, 0], "k-", label="Reference")
             for c, clr in enumerate(colors):
-                label = colors_vals[c] if color_col_indx else None
-                mask = (
-                    X_test_fair.T[color_col_indx] == label if color_col_indx else None
+                label = (
+                    label_encodings[color_col][int(colors_vals[c])]
+                    if color_col
+                    else None
                 )
+                mask = (
+                    X_test_fair.T[color_col_indx] == colors_vals[c]
+                    if color_col
+                    else None
+                )
+
                 ax = plot_ewf(
                     X_cv_fair,
                     y_cv,
                     prob_cv,
-                    X_test_fair if not color_col_indx else X_test_fair[mask],
-                    prob_test if not color_col_indx else prob_test[mask],
+                    X_test_fair if not color_col else X_test_fair[mask],
+                    prob_test if not color_col else prob_test[mask],
                     ax,
                     color_col,
                     color_indx=c,
@@ -120,9 +116,12 @@ def plot_id_bias(df, trust_features, encoding_req_names=None, target=None):
 
             ax.set_ylim([-1, 1])
 
-            ax.set_ylabel("Prediction Bias", size=20)
-            ax.set_xlabel(xlabel, size=20)
-
+            ax.set_ylabel("Prediction Bias", size=15)
+            ax.set_xlabel(xlabel, size=15)
+            plt.title(
+                f"Prediction Bias as function of {xlabel} Stratified by {color_col}",
+                size=18,
+            )
             ax.tick_params(axis="both", which="major", labelsize=15)
             ax.tick_params(axis="both", which="minor", labelsize=15)
             ax.legend(prop={"size": 17})
@@ -138,7 +137,7 @@ def plot_id_bias(df, trust_features, encoding_req_names=None, target=None):
             )
             st.warning(f"Here is the exact error: {e}")
             return None
-        return [plt]
+        return plt
     return None
 
 
