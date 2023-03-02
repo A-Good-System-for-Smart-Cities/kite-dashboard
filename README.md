@@ -4,16 +4,18 @@
 > We hope to empower general users to audit models and develop diagnostic plots that help identify and quantify bias in supervised ML models.
 
 * Policy-makers and general users can use this site to generate the following visualizations:
-    1. Prediction bias against a set of features (`trust_features`) in the data provided.
-    2. A Histogram Distribution of $ELCE^2$ -- a test statistic that quantifies bias in a set of features (`trust_features`) the user specifies
+    1. A calibration curve to compare the calibration of the model's probabilistic predictions.
+    2. Model Bias quantification curves, where you can plot Prediction Bias against a set of features (`trust_features`) in the data provided.
+    3. Model Trustworthiness hypothesis testing curve based on $ELCE^2$ -- a test statistic that quantifies bias in a set of features (`trust_features`) the user specifies
 
 ---
 ## How to use this site?
 1. Collect and pre-process your data as a CSV.
     * Make sure your CSV has your features, labels, and probabilities.
+    * Make sure your CSV has your features, labels, and probabilities.
     * **Your CSV MUST have the following column**:
         * `probability` -- Accepted values are decimal values $\in [0,1]$
-            * **What does this mean?** -- For rows with a `model_split_class` of `cv`, `probability` represents the output of the model's prediction probability for the validation data. Similarly, rows with a `model_split_class` of `test` has a `probability` that represents the output of the model's prediction probability for the testing feature set.
+            * **What does this mean?** -- `probability` represents the prediction probability for the feature set.
     * **Need an Example?** -- Please refer to [notebooks/Preprocess_COMPASS.ipynb](https://github.com/A-Good-System-for-Smart-Cities/kite-dashboard/blob/main/notebooks/Preprocess_COMPASS.ipynb) to see how you can pre-process your data into the right format!
 2. Upload your cleaned data!
 3. Label which columns are your target (y-label) and which set of features you want to use to evaluate trustworthiness.
