@@ -16,7 +16,9 @@
     * **Your CSV MUST have the following column**:
         * `probability` -- Accepted values are decimal values $\in [0,1]$
             * **What does this mean?** -- `probability` represents the prediction probability for the feature set.
-    * **Need an Example?** -- Please refer to [notebooks/Preprocess_COMPASS.ipynb](https://github.com/A-Good-System-for-Smart-Cities/kite-dashboard/blob/main/notebooks/Preprocess_COMPASS.ipynb) to see how you can pre-process your data into the right format!
+    * **Need an Example?**
+        * Example 1: [Preprocessed BROWARD COMPASS Data](https://github.com/A-Good-System-for-Smart-Cities/kite-dashboard/blob/main/sample_data/compass.csv)
+        * Example 2: [Homeownership Data](https://github.com/A-Good-System-for-Smart-Cities/kite-dashboard/blob/main/sample_data/home_ownership.csv)
 2. Upload your cleaned data!
 3. Label which columns are your target (y-label) and which set of features you want to use to evaluate trustworthiness.
 4. Generate + Download your plots of interest!

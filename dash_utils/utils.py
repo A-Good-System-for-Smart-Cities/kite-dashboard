@@ -26,7 +26,9 @@ file_reqs = """
     * **Your CSV MUST have the following column**:
         * `probability` -- Accepted values are decimal values $\in [0,1]$
             * **What does this mean?** -- `probability` represents the prediction probability for the feature set.
-    * **Need an Example?** -- Please refer to [notebooks/Preprocess_COMPASS.ipynb](https://github.com/A-Good-System-for-Smart-Cities/kite-dashboard/blob/main/notebooks/Preprocess_COMPASS.ipynb) to see how you can pre-process your data into the right format!
+    * **Need an Example?**
+        * Example 1: [Preprocessed BROWARD COMPASS Data](https://github.com/A-Good-System-for-Smart-Cities/kite-dashboard/blob/main/sample_data/compass.csv)
+        * Example 2: [Homeownership Data](https://github.com/A-Good-System-for-Smart-Cities/kite-dashboard/blob/main/sample_data/home_ownership.csv)
 
 """
 
