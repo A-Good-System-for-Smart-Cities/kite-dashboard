@@ -14,7 +14,7 @@ def pick_variables(df):
     # Choose fair features:
     describe("Choose features on which to evaluate model trustworthiness")
     trust_features = st.multiselect(
-        "These features should have numeric values.",
+        "These features should have >=1 numberic column and >=1 categorical column to generate Bias quantification Plot.",
         sorted(
             set(df.columns).difference(
                 [model_class_col_name, probability_col_name, ylabel]
