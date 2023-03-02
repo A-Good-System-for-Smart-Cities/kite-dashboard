@@ -19,6 +19,10 @@ def encode_data(df):
         le = LabelEncoder()
         encoded_df[col] = le.fit_transform(encoded_df[col])
         label_encodings[col] = {i: l for i, l in enumerate(le.classes_)}
+    for num_col in df.select_dtypes(include=['number']).columns:
+        le = LabelEncoder()
+        thing = le.fit_transform(encoded_df[num_col])
+        label_encodings[num_col] = {i: l for i, l in enumerate(le.classes_)}
     return encoded_df, label_encodings
 
 

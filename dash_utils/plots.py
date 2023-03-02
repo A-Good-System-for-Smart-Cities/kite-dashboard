@@ -68,12 +68,14 @@ def plot_id_bias(encoded_df, label_encodings, trust_features, target=None):
 
     # Of trust_features, pick x-axis and color
     xlabel, color_col = pick_xaxis_color_plt1(trust_features)
+
     np.random.seed(1864)
     gamma = 0.5  # kernel hyperparameter
     ewf_model = EWF_calibration()
 
     if xlabel:
         xlabel_col_indx = trust_features.index(xlabel)
+
         xmin = np.min(encoded_df[xlabel])
         xmax = np.max(encoded_df[xlabel])
         colors = sns.husl_palette(1)
@@ -82,6 +84,11 @@ def plot_id_bias(encoded_df, label_encodings, trust_features, target=None):
         if color_col:
             color_col_indx = trust_features.index(color_col)
             colors_vals = pd.Series(encoded_df[color_col]).unique()
+            if len(colors_vals) > 10:
+                st.warning(
+                    "ERR: Plot could not be generated correctly. Your color axis has > 10 categories."
+                )
+                return
             colors = sns.husl_palette(len(colors_vals))
             dark_colors = sns.husl_palette(len(colors_vals), l=0.4)
 
