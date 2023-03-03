@@ -10,6 +10,11 @@
 
 ---
 ## How to use this site?
+
+<p align="center">
+  <img src="dash_layout.png" title="site_use">
+</p>
+
 1. Collect and pre-process your data as a CSV.
     * Make sure your CSV has your features, labels, and probabilities.
     * Make sure your CSV has your features, labels, and probabilities.
